@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "XL4015_converter")(type "KiCad")(uri "${KIPRJMOD}/LIBRARY/KiCad-master/XL4015_step_down_converter/XL4015_converter.pretty")(options "")(descr ""))
+  (lib (name "TL2230EEF100")(type "KiCad")(uri "${KIPRJMOD}/LIBRARY/TL2230EEF100")(options "")(descr ""))
+)

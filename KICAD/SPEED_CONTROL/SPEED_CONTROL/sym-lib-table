@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "xl4015")(type "Legacy")(uri "${KIPRJMOD}/LIBRARY/KiCad-master/XL4015_step_down_converter/XL4015_converter_lib/xl4015.lib")(options "")(descr ""))
+  (lib (name "TL2230EEF100")(type "Legacy")(uri "${KIPRJMOD}/LIBRARY/TL2230EEF100/TL2230EEF100.lib")(options "")(descr ""))
+)
