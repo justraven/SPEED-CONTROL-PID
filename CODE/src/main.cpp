@@ -3,6 +3,8 @@
 #include <LiquidCrystal.h>
 #include <Servo.h>
 
+#include <parsing.h>
+
 #define TACHO_GENERATOR A0
 
 //----- POT PINs -----//
@@ -45,6 +47,10 @@ float error = 0.00, totalError, lastError, deltaError;
 float maxControl = 1410;
 float minControl = 900;
 
+//----- parsing variable -----//
+int mode;
+float PWM;
+
 //----- map float -----//
 float mapFloat(float x, float inMin, float inMax, float outMin, float outMax){
   return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
@@ -67,38 +73,80 @@ void setup() {
 
 void loop() {
 
+  if(Serial.available() > 0){
+
+    READ_DATA_UNTIL('\n');
+    data.replace(',','.');
+    parseString();
+
+    mode           = DATA_STR(0).toInt();
+    controlSignal  = DATA_STR(1).toFloat(); 
+
+    Serial.flush();
+
+  }
+
   if(millis() - t > timeSampling){
 
     t += timeSampling;
 
-    feedback = averageFilter(TACHO_GENERATOR,25);
+    feedback = averageFilter(TACHO_GENERATOR,50);
 
-    KP = mapFloat(analogRead(KP_PIN),0,883,0,10);
-    KI = mapFloat(analogRead(KI_PIN),0,883,0,0.1);
-    KD = mapFloat(analogRead(KD_PIN),0,883,0,10);
+    if(mode == 0){
 
-    setPoint = map(analogRead(SET_POINT_PIN),0,883,0,400);
+      KP = mapFloat(analogRead(KP_PIN),0,883,0,10);
+      KI = mapFloat(analogRead(KI_PIN),0,883,0,100);
+      KD = mapFloat(analogRead(KD_PIN),0,883,0,10);
 
-    error = setPoint - feedback;
-    totalError += error;
+      // KP = 1.529;
+      // KI = 0.01619;
+      // KD = 0.1829;
 
-    if (totalError >= maxControl) totalError = maxControl;
-    else if (totalError <= minControl) totalError = minControl;
+      // KP = 1.313;
+      // KI = 0.01371;
+      // KD = 0.1396;
 
-    deltaError = error - lastError;
+      // KP = 1.414;
+      // KI = 0.0264;
+      // KD = 0.08539;
 
-    KP_ = KP * error;
-    KI_ = KI * totalError * timeSampling;
-    KD_ = (KD / timeSampling) * deltaError;
 
-    controlSignal = KP_ + KI_ + KD_;
+      setPoint = map(analogRead(SET_POINT_PIN),0,883,0,400);
 
-    if(controlSignal >= maxControl) controlSignal = maxControl;
-    else if(controlSignal <= minControl) controlSignal = minControl;
+      error = setPoint - feedback;
+      totalError += error;
 
-    esc.writeMicroseconds(controlSignal);
+      if (totalError >= maxControl) totalError = maxControl;
+      else if (totalError <= minControl) totalError = minControl;
 
-    lastError = error;
+      deltaError = error - lastError;
+
+      KP_ = KP * error;
+      KI_ = (KI/1000) * totalError * timeSampling;
+      // KI_ = KI * totalError * timeSampling;
+      KD_ = (KD / timeSampling) * deltaError;
+
+      controlSignal = KP_ + KI_ + KD_;
+
+      if(controlSignal >= maxControl) controlSignal = maxControl;
+      else if(controlSignal <= minControl) controlSignal = minControl;
+
+      esc.writeMicroseconds(controlSignal);
+
+      lastError = error;
+
+    }
+
+    else if (mode == 1){
+
+      if(controlSignal >= maxControl)
+        controlSignal = maxControl;
+      else if(controlSignal <= minControl)
+        controlSignal = minControl;
+
+      esc.writeMicroseconds(controlSignal);      
+
+    }
 
     String S = String(setPoint);
     String F = String(feedback);
