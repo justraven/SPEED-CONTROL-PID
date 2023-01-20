@@ -58,7 +58,7 @@ float mapFloat(float x, float inMin, float inMax, float outMin, float outMax){
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   lcd.begin(16,2);
   esc.attach(9);
@@ -68,6 +68,11 @@ void setup() {
 
   digitalWrite(BUZZER,LOW);
   digitalWrite(LED,HIGH);
+
+  // esc.writeMicroseconds(minControl);
+  // delay(1000);
+  // esc.writeMicroseconds(maxControl);
+  // delay(1000);
 
 }
 
@@ -90,7 +95,7 @@ void loop() {
 
     t += timeSampling;
 
-    feedback = averageFilter(TACHO_GENERATOR,50);
+    feedback = averageFilter(TACHO_GENERATOR,200);
 
     if(mode == 0){
 
