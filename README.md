@@ -1,6 +1,6 @@
 # MOTOR DC SPEED CONTROL
 
-control velocity of a DC motor using PID control.
+Implementing PID control to regulate the speed of a DC motor.
 
 ## File Structure
 ```
